@@ -5,6 +5,7 @@ import (
 	"film-info/config"
 	"film-info/internal/model"
 	"fmt"
+	"log"
 	"time"
 )
 
@@ -52,23 +53,20 @@ func (d *Dao) DelFromRedis(filmInfo model.DoubanMovie) error {
 // CalViewNumber 统计记录的浏览数
 func (d *Dao) CalViewNumber(filter string) error {
 	// 先检查是否已经有了，没就set，有就+1
-	if res, _ := d.RedisDb.HExists(filter, config.ViewNumber).Result(); !res {
-		cmdRes := d.RedisDb.HSet(filter, config.ViewNumber, 1)
-		if cmdRes.Err() != nil {
-			return fmt.Errorf("set viewNum error: %v", cmdRes.Err())
-		}
-	} else {
-		cmdRes := d.RedisDb.HIncrBy(filter, config.ViewNumber, 1)
-		if cmdRes.Err() != nil {
-			return fmt.Errorf("viewNum incr error: %v", cmdRes.Err())
-		}
+	res, err := d.RedisDb.HIncrBy("\""+filter+"\"", config.ViewNumber, 1).Result()
+	if err != nil {
+		return fmt.Errorf("incr error: %v", err)
 	}
+	log.Print(res)
 	return nil
 }
 
 // QueryMovieSetAdd 添加movie的title进set中
 func (d *Dao) QueryMovieSetAdd(filter string) {
-	d.RedisDb.Set(config.QueryMovieSet, filter, config.QueryExpiredTime)
+	_, err := d.RedisDb.SAdd(config.QueryMovieSet, filter).Result()
+	if err != nil {
+		log.Printf("set add error: %v", err)
+	}
 }
 
 // QueryMovieSetMembers 返回set中的movie title
@@ -82,7 +80,7 @@ func (d *Dao) GetMovieSetMembers(filter string) ([]string, error) {
 
 // GetMovieViewNumber 返回redis中电影的view number
 func (d *Dao) GetMovieViewNumber(movieTtile string) (string, error) {
-	res, err := d.RedisDb.HGet(movieTtile, config.ViewNumber).Result()
+	res, err := d.RedisDb.HGet("\""+movieTtile+"\"", config.ViewNumber).Result()
 	if err != nil {
 		return "", fmt.Errorf("GetMovieViewNumber error %v", err)
 	}

@@ -1,13 +1,9 @@
 package main
 
 import (
-	"encoding/json"
 	"film-info/config"
 	"film-info/internal/dao"
-	"film-info/internal/model"
-	"fmt"
 	"log"
-	"time"
 )
 
 func main() {
@@ -15,12 +11,20 @@ func main() {
 	if err != nil {
 		log.Printf("config error: %v", err)
 	}
-	film := model.DoubanMovie{Title: "aaa", Star: "10"}
-	fileJson, _ := json.Marshal(film)
-	cmd := dao.D.RedisDb.Set("filmaa", fileJson, time.Hour)
-	filmaa, err := dao.D.RedisDb.Get("filma").Result()
-	var film1 model.DoubanMovie
-	json.Unmarshal([]byte(filmaa), &film1)
-	fmt.Println(film1, cmd, err)
+	movieTitleList, err := dao.D.GetMovieSetMembers(config.QueryMovieSet)
+	if err != nil {
+		log.Printf("get movie set member error: %v", err)
+	}
+	err = dao.D.CalViewNumber("千与千寻")
+	for _, title := range movieTitleList {
+		viewNum, err := dao.D.GetMovieViewNumber(title)
+		if err != nil {
+			log.Printf("get movie view number error: %v", err)
+		}
+		err = dao.D.UpdateMovieInfo(title, "ViewNumber", viewNum)
+		if err != nil {
+			log.Printf("update movie viewNumber error: %v", err)
+		}
+	}
 
 }

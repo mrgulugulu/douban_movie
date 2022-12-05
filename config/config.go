@@ -21,9 +21,9 @@ var (
 )
 
 const (
-	QueryMovieSet    = "queryMovieSet"
+	QueryMovieSet    = "movieset"
 	QueryExpiredTime = time.Hour
-	ViewNumber       = "view_number"
+	ViewNumber       = "viewnum"
 )
 
 type MysqlConfig struct {
