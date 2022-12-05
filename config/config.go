@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/spf13/viper"
 )
@@ -17,6 +18,12 @@ var (
 		"Accept":                    "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
 		"Referer":                   "https://movie.douban.com/top250",
 	}
+)
+
+const (
+	QueryMovieSet    = "queryMovieSet"
+	QueryExpiredTime = time.Hour
+	ViewNumber       = "view_number"
 )
 
 type MysqlConfig struct {

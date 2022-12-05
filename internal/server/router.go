@@ -4,6 +4,7 @@ import (
 	"film-info/internal/dao"
 	"film-info/internal/model"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -15,6 +16,12 @@ func query(c *gin.Context) {
 	// 这里使用了shouldbind来通过反射匹配，但好似有点损失性能
 	var filmInfo model.DoubanMovie
 	if err := c.ShouldBind(&filmInfo); err == nil {
+		// 写入set中
+		dao.D.QueryMovieSetAdd(filmInfo.Title)
+		err := dao.D.CalViewNumber(filmInfo.Title)
+		if err != nil {
+			log.Printf("cal viewNumber error %v", err)
+		}
 		redisRes, err := dao.D.ReadFromRedis(filmInfo.Title)
 		if err == nil {
 			c.String(http.StatusOK, fmt.Sprintf("%+v", redisRes))
@@ -25,7 +32,7 @@ func query(c *gin.Context) {
 			c.String(http.StatusNotFound, fmt.Sprintf("%+v", err))
 		} else {
 			// 这里要写入redis
-			_ = dao.D.WriteInRedis(info)
+			_ = dao.D.WriteFilmInfoInRedis(info)
 			c.String(http.StatusOK, fmt.Sprintf("%+v", info))
 		}
 	} else {

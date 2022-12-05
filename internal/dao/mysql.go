@@ -9,7 +9,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// SaveHouseInfo 写入mysql数据库中
+// SaveMovieInfo 写入mysql数据库中
 func (d *Dao) SaveMovieInfo(moviesInfo []model.DoubanMovie) int {
 	count := 0
 	for index, movie := range moviesInfo {

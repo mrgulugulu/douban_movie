@@ -11,7 +11,7 @@ type DoubanMovie struct {
 	Tag        string `gorm:"tag" form:"tag" json:"tag"`
 	Star       string `gorm:"star" form:"star" json:"star"`
 	Comment    string `gorm:"comment" form:"comment" json:"comment"`
-	ViewNumber int    `gorm:"view_number" form:"view_number" json:"view_number"`
+	ViewNumber string `gorm:"view_number" form:"view_number" json:"view_number"`
 	Quote      string `gorm:"quote" form:"quote" json:"quote"`
 }
 
