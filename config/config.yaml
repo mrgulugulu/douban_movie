@@ -1,0 +1,14 @@
+mysql:
+  ip: 127.0.0.1
+  port: 3306
+  user: root
+  pwd: 123
+  database: go_project
+redis:
+  ip: 127.0.0.1
+  port: 6379
+  pwd: 123
+  db: 0
+server:
+  addr: 192.168.229.133
+  port: 8080
