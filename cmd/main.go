@@ -2,7 +2,10 @@ package main
 
 import (
 	"film-info/config"
+	"film-info/internal/dao"
+	"film-info/internal/engine"
 	"film-info/internal/server"
+	"fmt"
 )
 
 func main() {
@@ -11,9 +14,9 @@ func main() {
 		Port: config.ServiceConf.ServerCfg.Port,
 	}
 
-	// movies := engine.Run(config.BaseUrl)
-	// insertedNumber := dao.D.SaveMovieInfo(movies)
-	// fmt.Printf("insert %d data successfully", insertedNumber)
+	movies := engine.Run(config.BaseUrl)
+	insertedNumber := dao.D.SaveMovieInfo(movies)
+	fmt.Printf("insert %d data successfully", insertedNumber)
 	s.Run()
 
 }

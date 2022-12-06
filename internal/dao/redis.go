@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"log"
 	"time"
+
+	"github.com/go-redis/redis"
 )
 
 // 读写的逻辑分别是
@@ -24,20 +26,20 @@ func (d *Dao) ReadFromRedis(title string) (model.DoubanMovie, error) {
 	return result, nil
 }
 
-// 写：先更新mysql，再删redis
+// WriteFilmInfoInRedis 写：先更新mysql，再删redis
 func (d *Dao) WriteFilmInfoInRedis(filmInfo model.DoubanMovie) error {
 	filmJson, err := json.Marshal(filmInfo)
 	if err != nil {
 		return fmt.Errorf("filmInfo marshal error: %v", err)
 	}
-	cmdRes := d.RedisDb.Set(filmInfo.Title, filmJson, time.Minute)
+	cmdRes := d.RedisDb.Set(filmInfo.Title, filmJson, time.Hour)
 	if cmdRes.Err() != nil {
 		return fmt.Errorf("write in redis error: %v", cmdRes.Err())
 	}
 	return nil
 }
 
-// redis删除操作
+// DelFromRedis redis删除操作
 func (d *Dao) DelFromRedis(filmInfo model.DoubanMovie) error {
 	filmJson, err := json.Marshal(filmInfo)
 	if err != nil {
@@ -85,4 +87,26 @@ func (d *Dao) GetMovieViewNumber(movieTtile string) (string, error) {
 		return "", fmt.Errorf("GetMovieViewNumber error %v", err)
 	}
 	return res, nil
+}
+
+// SetTop10ZSet 将列名作为zset的key，将电影名有序添加到zset中
+func (d *Dao) SetTop10ZSet(column string, movieInfoList []model.DoubanMovie) {
+	for score, movie := range movieInfoList {
+		_, err := d.RedisDb.ZAdd(column, redis.Z{Score: float64(score), Member: movie.Title}).Result()
+		if err != nil {
+			log.Printf("top10Zset add data error: %v", err)
+		}
+	}
+}
+
+// IsZSetExist 检查zset是否存在
+func (d *Dao) IsZSetExist(filter string) bool {
+	res, _ := d.RedisDb.ZCard(filter).Result()
+	return int(res) != 0
+}
+
+// ReadZSet 读取zset
+func (d *Dao) ReadZSet(key string) []string {
+	list, _ := d.RedisDb.ZRange(key, 0, -1).Result()
+	return list
 }

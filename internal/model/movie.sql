@@ -10,6 +10,7 @@ CREATE TABLE `douban_movie` (
   `tag` varchar(255) DEFAULT '' COMMENT '标签',
   `star` varchar(10) DEFAULT '0' COMMENT 'star',
   `comment` int(10) unsigned DEFAULT '0' COMMENT '评分',
+  `view_number` varchar(255) DEFAULT '0' COMMENT '浏览量',
   `quote` varchar(255) DEFAULT '' COMMENT '引用',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='movieTop250';

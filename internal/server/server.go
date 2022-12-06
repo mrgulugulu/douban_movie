@@ -53,7 +53,7 @@ func gracefulExitServer(ser *http.Server) {
 		if err != nil {
 			log.Printf("get movie view number error: %v", err)
 		}
-		err = dao.D.UpdateMovieInfo(title, "ViewNumber", viewNum)
+		err = dao.D.UpdateMovieInfo(title, "view_number", viewNum)
 		if err != nil {
 			log.Printf("update movie viewNumber error: %v", err)
 		}

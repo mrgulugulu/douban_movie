@@ -40,9 +40,31 @@ func query(c *gin.Context) {
 	}
 }
 
+//
 func top10(c *gin.Context) {
+	result := make([]model.DoubanMovie, 0, 10)
 	filter := c.DefaultQuery("column", "")
+	// 可以先检查redis中是否存在该set
+	if dao.D.IsZSetExist(filter) {
+		movieList := dao.D.ReadZSet(filter)
+		for _, movieTitle := range movieList {
+			info, err := dao.D.ReadFromRedis(movieTitle)
+			if err != nil {
+				log.Printf("read from redis error: %v", err)
+			}
+			result = append(result, info)
+		}
+		c.String(http.StatusOK, fmt.Sprintf("%v+", result))
+		return
+	}
 	res, err := dao.D.Top10(filter)
+	dao.D.SetTop10ZSet(filter, res)
+	for _, movieInfo := range res {
+		err := dao.D.WriteFilmInfoInRedis(movieInfo)
+		if err != nil {
+			log.Printf("write info in redis error: %v", err)
+		}
+	}
 	if err != nil {
 		c.String(http.StatusNotFound, fmt.Sprintf("%+v", err))
 	} else {
