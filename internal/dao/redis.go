@@ -55,11 +55,10 @@ func (d *Dao) DelFromRedis(filmInfo model.DoubanMovie) error {
 // CalViewNumber 统计记录的浏览数
 func (d *Dao) CalViewNumber(filter string) error {
 	// 先检查是否已经有了，没就set，有就+1
-	res, err := d.RedisDb.HIncrBy("\""+filter+"\"", config.ViewNumber, 1).Result()
+	_, err := d.RedisDb.HIncrBy("\""+filter+"\"", config.ViewNumber, 1).Result()
 	if err != nil {
 		return fmt.Errorf("incr error: %v", err)
 	}
-	log.Print(res)
 	return nil
 }
 
@@ -109,4 +108,37 @@ func (d *Dao) IsZSetExist(filter string) bool {
 func (d *Dao) ReadZSet(key string) []string {
 	list, _ := d.RedisDb.ZRange(key, 0, -1).Result()
 	return list
+}
+
+func (d *Dao) Set(key, value string, duration time.Duration) error {
+	_, err := d.RedisDb.Set(key, value, duration).Result()
+	if err != nil {
+		return fmt.Errorf("redis set error: %v", err)
+	}
+	return nil
+
+}
+
+func (d *Dao) Get(key string) (string, error) {
+	res, err := d.RedisDb.Get(key).Result()
+	if err != nil {
+		return "", fmt.Errorf("redis get error: %v", err)
+	}
+	return res, nil
+}
+
+func (d *Dao) Incr(key string) (int, error) {
+	res, err := d.RedisDb.Incr(key).Result()
+	if err != nil {
+		return 0, fmt.Errorf("redis incr error: %v", err)
+	}
+	return int(res), nil
+}
+
+func (d *Dao) Expire(key string, dur time.Duration) error {
+	_, err := d.RedisDb.Expire(key, dur).Result()
+	if err != nil {
+		return fmt.Errorf("redis expire error: %v", err)
+	}
+	return nil
 }
