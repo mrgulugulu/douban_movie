@@ -22,7 +22,7 @@ type Server struct {
 
 func (s *Server) Run() {
 	r := gin.Default()
-
+	r.Use(recordUserVisit)
 	r.GET("/filmInfo", query)
 	r.GET("/filmInfo/top10", top10)
 	r.DELETE("/filmInfo", delete)

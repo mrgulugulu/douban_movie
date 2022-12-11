@@ -24,6 +24,8 @@ const (
 	QueryMovieSet    = "movieset"
 	QueryExpiredTime = time.Hour
 	ViewNumber       = "viewnum"
+	Minute           = time.Minute
+	UserVisitLimit   = 10
 )
 
 type MysqlConfig struct {
